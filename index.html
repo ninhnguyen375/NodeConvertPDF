@@ -11,14 +11,22 @@
 <body>
     <p>Upload file</p>
     <form id='uploadForm'>
-        <input type="text" id="base64" />
+        <textarea id="base64"></textarea>
+        <select id="type">
+            <option value="word">word</option>
+            <option value="excel">excel</option>
+        </select>
         <button id="button" type="submit">Submit</button>
     </form>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
     <script>
         document.getElementById("uploadForm").onsubmit = async (event) => {
             event.preventDefault()
-            const {data} = await axios.post('/upload', { base64: document.getElementById('base64').value })
+            const { data } = await axios.post('/api/convert-pdf', {
+                base64: document.getElementById('base64').value,
+                type: document.getElementById('type').value,
+            })
+            
             console.log(data)
         }
     </script>
