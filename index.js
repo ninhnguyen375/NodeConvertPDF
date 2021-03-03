@@ -19,6 +19,7 @@ app.post('/api/convert-pdf', async (req, res) => {
 
   if (base64ToConvert === undefined) {
     res.statusCode = 400
+    console.log("no body data")
     res.send({ error: "No body data" })
     return
   }
@@ -28,7 +29,7 @@ app.post('/api/convert-pdf', async (req, res) => {
   const filePath = path.join(__dirname, "tmp", now) 
   const convertedPath = path.join(__dirname, "converted")
   const convertedItem = path.join(convertedPath, now + ".pdf")
-  fs.writeFileSync(filePath, buffer)
+  await fs.writeFileSync(filePath, buffer)
 
   let cmd = ""
 
@@ -37,20 +38,22 @@ app.post('/api/convert-pdf', async (req, res) => {
   } else if (type === "excel") {
     cmd = execExcelPath + " --headless --convert-to pdf " + filePath + " --outdir " + convertedPath
   } else {
+    console.log("missing type")
     res.send({ error: "missing type" })
     return
   }
 
-  execSync(cmd);
+  await execSync(cmd);
   
-  const bytes = fs.readFileSync(convertedItem)
+  const bytes = await fs.readFileSync(convertedItem)
   const base64 = bytes.toString("base64")
 
   // delete converted files
-  execSync("del /f " + convertedItem)
-  execSync("del /f " + filePath)
+  await execSync("del /f " + convertedItem)
+  await execSync("del /f " + filePath)
 
-  res.send(base64)
+  console.log("done")
+  res.send({ base64 })
 })
 
 app.listen(3000, () => { })
